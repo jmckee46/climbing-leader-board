@@ -13,26 +13,25 @@ func climbingLeaderboard(scores []int32, alice []int32) []int32 {
 	leaderboard := stripDulicates(scores)
 	aliceRank := make([]int32, 0)
 	var rank int32
-	for index, value := range alice {
-		fmt.Println("alice index:", index)
-		fmt.Println("alice value:", value)
+	for _, value := range alice {
 		rank = calculateRank(value, leaderboard)
-		fmt.Println("rank:", rank)
 		aliceRank = append(aliceRank, rank)
 	}
 	return aliceRank
 }
 
 func stripDulicates(scores []int32) []int32 {
-	for i := 0; i < len(scores)-2; i++ {
-		if scores[i] == scores[i+1] {
-			copy(scores[i:], scores[i+1:])
-			scores[len(scores)-1] = 0
-			scores = scores[:len(scores)-1]
+	uniqueMap := map[int32]bool{}
+	unique := []int32{}
+
+	for index := range scores {
+		if uniqueMap[scores[index]] != true {
+			uniqueMap[scores[index]] = true
+			unique = append(unique, scores[index])
 		}
 	}
 
-	return scores
+	return unique
 }
 
 func calculateRank(score int32, leaderboard []int32) int32 {
@@ -48,61 +47,32 @@ func calculateRank(score int32, leaderboard []int32) int32 {
 
 	for low <= high {
 		median = (low + high) / 2
-		fmt.Println("low:", low)
-		fmt.Println("high:", high)
-		fmt.Println("median:", median)
-		fmt.Println("leaderboard[median]:", leaderboard[median])
 		if leaderboard[median] == score {
 			return median + 1
-			// } else if scoreInbetweenRight(score, leaderboard, median) {
-			// 	return median + 2
-			// } else if scoreInbetweenLeft(score, leaderboard, median) {
-			// 	return median
 		} else if leaderboard[median] < score {
 			high = median - 1
 		} else {
 			low = median + 1
 		}
 	}
-	fmt.Println("ending low:", low)
-	fmt.Println("ending high:", high)
-	fmt.Println("ending median:", median)
 
 	if leaderboard[median] > score && leaderboard[median+1] < score {
-		fmt.Println("first part of if")
 		return median + 2
 	} else if leaderboard[median-1] > score && leaderboard[median] < score {
-		fmt.Println("second part of if")
 		return median + 1
 	} else {
 		panic("problem in calculate rank")
 	}
 }
 
-func scoreInbetweenRight(score int32, leaderboard []int32, median int32) bool {
-	if leaderboard[median] > score && leaderboard[median+1] < score {
-		return true
-	}
-
-	return false
-}
-
-func scoreInbetweenLeft(score int32, leaderboard []int32, median int32) bool {
-	if leaderboard[median-1] > score && leaderboard[median] < score {
-		return true
-	}
-
-	return false
-}
-
 // ********************************************************************************
 func main() {
-	file, err := os.Open("test-case-6")
+	file, err := os.Open("test-case-1")
 	checkError(err)
 
 	reader := bufio.NewReaderSize(file, 1600*1600)
 
-	stdout, err := os.Create("OUTPUT-test-case-6")
+	stdout, err := os.Create("OUTPUT-test-case-1")
 	checkError(err)
 
 	defer stdout.Close()
@@ -112,9 +82,7 @@ func main() {
 	scoresCount, err := strconv.ParseInt(readLine(reader), 10, 64)
 	checkError(err)
 
-	fmt.Println("scoresCount:", scoresCount)
 	scoresTemp := strings.Split(readLine(reader), " ")
-	fmt.Println("scoresTemp length:", len(scoresTemp))
 
 	var scores []int32
 
